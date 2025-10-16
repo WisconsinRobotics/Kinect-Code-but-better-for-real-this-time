@@ -78,7 +78,9 @@ class BodyGameRuntime(object):
         # back buffer surface for getting Kinect color frames, 32bit color, width and height equal to the Kinect color frame size
         self._frame_surface = pygame.Surface((self._kinect.color_frame_desc.Width, self._kinect.color_frame_desc.Height), pygame.SRCALPHA, 32)
 
-        self._ir_frame_surface = pygame.Surface((self._kinect.infrared_frame_desc.Width, self._kinect.infrared_frame_desc.Height), 0, 24)
+        ir_width = 512   # Kinect v2 infrared frame width
+        ir_height = 424  # Kinect v2 infrared frame height
+        self._ir_frame_surface = pygame.Surface((ir_width, ir_height), 0, 24)
 
         self._depth_frame_surface = pygame.Surface((self._kinect.depth_frame_desc.Width, self._kinect.depth_frame_desc.Height), 0, 16)
 
