@@ -6,3 +6,8 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 
+Install Kinect SDK Driver
+windows sdk 2.0 kinect
+
+Also, The site package woraround, make sure it is actually running.
+(The site packages was in the python36 file path not in the one insisde the virtual environment) (Only happen for Nico)
