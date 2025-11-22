@@ -234,22 +234,7 @@ class BodyGameRuntime(object):
             # --- Game logic should go here
             #print(self.peoplecount)
             #print('attempting serial write')
-            if self.serial:
-                try:
-                    self.serial.write(['a','b','c','d','e','f'][self.peoplecount].encode('utf-8'))
-                except:
-                    print('serial bad times')
-                    try:
-                        self.serial.close()
-                    except:
-                        print('failed to close')
-                    global port
-                    if port:
-                        self.serial = ser_conn(port)
-                    else: 
-                        self.serial = None
-                    pass
-                
+
             # --- Getting frames and drawing  
             # --- Woohoo! We've got a color frame! Let's fill out back buffer surface with frame's data 
             
@@ -293,7 +278,13 @@ class BodyGameRuntime(object):
                     # convert joint coordinates to color space 
                     joint_points = self._kinect.body_joints_to_color_space(joints)
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i], hands)
-            
+                print(self.peoplecount)
+
+                if self.peoplecount > 0:
+                    body = self._bodies.bodies[0]
+                    joints = body.joints
+                    joint_points = self._kinect.body_joints_to_color_space(joints)
+                    print(joints)
 
             # --- copy back buffer surface pixels to the screen, resize it if needed and keep aspect ratio
             # --- (screen size may be different from Kinect's color frame size) 
