@@ -20,6 +20,9 @@ import time
 matplotlib.use("Agg")
 COM_PORT = "COM4"
 
+
+
+
 if sys.hexversion >= 0x03000000:
     import _thread as thread
 else:
@@ -34,11 +37,11 @@ SKELETON_COLORS = [pygame.color.THECOLORS["red"],
                   pygame.color.THECOLORS["yellow"], 
                   pygame.color.THECOLORS["violet"]]
 
-def ser_conn(name): #connect to the arduino over serial. runs once at the beginning
-    ser = serial.Serial(name, 9600, timeout=0.01, write_timeout=0.1)
-    ser.reset_input_buffer()
-    sleep(3)
-    return ser
+# def ser_conn(name): #connect to the arduino over serial. runs once at the beginning
+#     ser = serial.Serial(name, 9600, timeout=0.01, write_timeout=0.1)
+#     ser.reset_input_buffer()
+#     sleep(3)
+#     return ser
 
 '''
 |=================================|
@@ -48,12 +51,12 @@ def ser_conn(name): #connect to the arduino over serial. runs once at the beginn
 |                                 |
 |=================================|
 '''
-port = None
-#port = "COM3"
-if port:
-    serial_connection = ser_conn(port)
-else: 
-    serial_connection = None
+# port = None
+# #port = "COM3"
+# if port:
+#     serial_connection = ser_conn(port)
+# else: 
+#     serial_connection = None
 
 class BodyGameRuntime(object):
     def __init__(self):
@@ -95,8 +98,8 @@ class BodyGameRuntime(object):
         
         self.peoplecount = 0
 
-        global serial_connection
-        self.serial = serial_connection
+        # global serial_connection
+        # self.serial = serial_connection
 
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
@@ -223,6 +226,10 @@ class BodyGameRuntime(object):
         target_surface.unlock()
 
     def run(self):
+        ser = serial.Serial(COM_PORT, 115200)
+        motor_left = 0.0
+        motor_right = 0.0
+        #start_time = time.Now
         # -------- Main Program Loop -----------
         while not self._done:
             # --- Main event loop
@@ -307,13 +314,18 @@ class BodyGameRuntime(object):
                     else: 
                         motor_left = 0
                         motor_right = 0
-                    print("Motor Left: " + str(motor_left) + ", Motor Right: " +str(motor_right))
+                    #print("Motor Left: " + str(motor_left) + ", Motor Right: " +str(motor_right))
                     break
             else:
-                motor_left = 0
-                motor_right = 0
+                motor_left = 0.0
+                motor_right = 0.0
 
             #Now that we get motor values. We send them through COM port
+            print("Motor Left: " + str(motor_left) + ", Motor Right: " +str(motor_right))
+            msg = f"L:{motor_left}, R:{motor_right};"
+            ser.write(msg.encode())
+            time.sleep(.05)
+            
 
             # --- copy back buffer surface pixels to the screen, resize it if needed and keep aspect ratio
             # --- (screen size may be different from Kinect's color frame size) 
@@ -344,6 +356,7 @@ class BodyGameRuntime(object):
             self._clock.tick(60)
 
         # Close our Kinect sensor, close the window and quit.
+        ser.close()
         self._kinect.close()
         pygame.quit()
 
