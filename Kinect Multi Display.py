@@ -14,8 +14,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
 
-matplotlib.use("Agg")
+import serial
+import time
 
+matplotlib.use("Agg")
+COM_PORT = "COM4"
 
 if sys.hexversion >= 0x03000000:
     import _thread as thread
@@ -278,13 +281,39 @@ class BodyGameRuntime(object):
                     # convert joint coordinates to color space 
                     joint_points = self._kinect.body_joints_to_color_space(joints)
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i], hands)
-                print(self.peoplecount)
+                #print(self.peoplecount)
 
-                if self.peoplecount > 0:
-                    body = self._bodies.bodies[0]
+                for i in range(0, self._kinect.max_body_count):
+                    body = self._bodies.bodies[i]
+                    if not body.is_tracked: 
+                        continue
                     joints = body.joints
                     joint_points = self._kinect.body_joints_to_color_space(joints)
-                    print(joints)
+                    #print(str( ((joints[11].Position).x)<((joints[1].Position).x) ))
+                    #print("Right Hand Position: " + str((joints[11].Position).x) + "Spine Mid: " + str((joints[1].Position).x))
+                    if((joints[11].Position).x)<((joints[1].Position).x):
+                        motor_left = -1.0
+                        motor_right = 1.0
+                    elif((joints[7].Position).x)>((joints[1].Position).x):
+                        motor_left = 1.0
+                        motor_right=-1.0
+                    elif((joints[11].Position).y)>((joints[20].Position).y) and ((joints[7].Position).y)>((joints[20].Position).y):
+                        if((joints[11].Position).x)>((joints[9].Position).x) and((joints[7].Position).x)<((joints[5].Position).x):
+                            motor_right = 1.0
+                            motor_left = 1.0
+                        elif((joints[11].Position).x)<((joints[9].Position).x) and((joints[7].Position).x)>((joints[5].Position).x):
+                            motor_right = -1.0
+                            motor_left = -1.0
+                    else: 
+                        motor_left = 0
+                        motor_right = 0
+                    print("Motor Left: " + str(motor_left) + ", Motor Right: " +str(motor_right))
+                    break
+            else:
+                motor_left = 0
+                motor_right = 0
+
+            #Now that we get motor values. We send them through COM port
 
             # --- copy back buffer surface pixels to the screen, resize it if needed and keep aspect ratio
             # --- (screen size may be different from Kinect's color frame size) 
